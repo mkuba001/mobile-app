@@ -1,37 +1,60 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const TabsLayout = () => {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: '#FFA001', 
+        tabBarInactiveTintColor: "#CDCDE0", 
+        tabBarStyle: {
+          backgroundColor: '#161622',
+          borderTopWidth: 1,
+          borderTopColor: '#232533',
+          height: 84,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12, 
+          paddingBottom: 6, 
+        },
+      }}
+    >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: 'Home',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+            <MaterialIcons name="home" size={24} color={focused ? color : '#9BA1A6'} />
           ),
+          tabBarLabel: "Home", 
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="saved"
         options={{
-          title: 'Explore',
+          title: 'Saved',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <MaterialIcons name="bookmark" size={24} color={focused ? color : '#9BA1A6'} />
           ),
+          tabBarLabel: "Saved", 
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons name="person" size={24} color={focused ? color : '#9BA1A6'} />
+          ),
+          tabBarLabel: "Profile", 
         }}
       />
     </Tabs>
   );
-}
+};
+
+export default TabsLayout;
