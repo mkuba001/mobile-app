@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Redirect, useRouter } from 'expo-router';
-import { useGlobalContext } from '@/contex/GlobalProvider';
+import { useGlobalContext } from '../contex/GlobalProvider';
 
 export default function Index() {
   const router = useRouter();
@@ -23,7 +23,6 @@ export default function Index() {
 
       {/* Obrazy */}
       <View style={styles.imageContainer}>
-        {/* Jeśli masz obrazy, dodaj je tutaj */}
       </View>
 
       {/* Nagłówki */}
@@ -35,8 +34,8 @@ export default function Index() {
       {/* Przycisk */}
       <Button
         mode="contained"
-        onPress={() => router.push('/(auth)/sing-in')} // Zmiana trasy na /SignUp
-        //onPress={() => router.push('/home')} // Zmiana trasy na /SignUp
+        onPress={() => router.push('/(auth)/sing-in')} 
+        //onPress={() => router.push('/home')} 
         style={styles.button}
         labelStyle={styles.buttonLabel}
       >

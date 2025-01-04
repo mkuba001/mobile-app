@@ -10,14 +10,12 @@ export const config = {
   storageId: '6759f0b00012c6aad6f3'
 }
 
-
-// Init your React Native SDK
 const client = new Client();
 
 client
-    .setEndpoint(config.endpoint) // Your Appwrite Endpoint
-    .setProject(config.projectId) // Your project ID
-    .setPlatform(config.platform) // Your application ID or bundle ID.
+    .setEndpoint(config.endpoint) 
+    .setProject(config.projectId) 
+    .setPlatform(config.platform) 
 
     const account = new Account(client);
     const databases = new Databases(client);
@@ -26,7 +24,7 @@ client
 
     
 // ---------------------------------------
-// User Registration and Login Functions
+// Rejestracja i Logowanie
 // ---------------------------------------
 
 export const createUser = async (email, password, username) => {
@@ -63,7 +61,6 @@ export const createUser = async (email, password, username) => {
     }
   }
 
-// Sign In
 export const signIn = async(email, password)=> {
     try {
       const session = await account.createEmailPasswordSession(email, password)
@@ -95,11 +92,21 @@ export const signIn = async(email, password)=> {
     }
   }
 
+  export const logout = async () => {
+    try {
+      await account.deleteSession('current'); 
+      console.log('User logged out successfully.');
+    } catch (error) {
+      console.error('Error while logging out:', error);
+      throw new Error('Failed to log out');
+    }
+  };
+  
+
 // ---------------------------------------
-// Save News Functions
+// Obsługa wiadomości
 // ---------------------------------------
 
-// Check if newsId is unique
 export const isNewsIdUnique = async (newsId) => {
   try {
     const response = await databases.listDocuments(
@@ -108,7 +115,7 @@ export const isNewsIdUnique = async (newsId) => {
       [Query.equal('newsId', newsId)]
     );
 
-    return response.documents.length === 0; // Returns true if no documents are found
+    return response.documents.length === 0; 
   } catch (error) {
     console.error('Error checking newsId uniqueness:', error);
     throw error;
@@ -124,7 +131,7 @@ export const saveNews = async (newsData, accountId) => {
   }
 
   try {
-    // Sprawdź, czy ten newsId został już zapisany przez użytkownika
+    // czy news został już zapisany przez użytkownika
     const response = await databases.listDocuments(
       config.databaseId,
       config.saved_newsCollectionId,
@@ -136,7 +143,6 @@ export const saveNews = async (newsData, accountId) => {
       return { message: 'News already saved', success: false };
     }
 
-    // Zapisz nowy artykuł
     const newDocument = await databases.createDocument(
       config.databaseId,
       config.saved_newsCollectionId,
@@ -148,11 +154,11 @@ export const saveNews = async (newsData, accountId) => {
         link,
         linkPhoto,
         isFavourite: false,
-        users: accountId, // Użyj accountId zamiast userId
+        users: accountId, 
       }
     );
 
-    console.log('Zapisano wiadomość:', newDocument);
+    console.log('News saved:', newDocument);
     return { message: 'News saved successfully', success: true, data: newDocument };
   } catch (error) {
     console.error('Error saving news:', error);
@@ -160,14 +166,13 @@ export const saveNews = async (newsData, accountId) => {
   }
 };
 
-// Get saved news articles for the current user
 export const getSavedNews = async (accountId) => {
   try {
     console.log('Pobieranie zapisanych wiadomości dla accountId:', accountId);
     const response = await databases.listDocuments(
       config.databaseId,
       config.saved_newsCollectionId,
-      [Query.equal('users', accountId)] // Użyj accountId zamiast userId
+      [Query.equal('users', accountId)] 
     );
 
     console.log('Zapisane wiadomości:', response.documents);

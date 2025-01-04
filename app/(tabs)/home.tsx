@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOpacity, Linking, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
-import { saveNews, getCurrentUser } from '../../service/appwrite'; // Import your backend functions
+import { saveNews, getCurrentUser } from '../../service/appwrite'; 
 
-const API_KEY = 'aa74878ced5144a4a149a69ff0db10df'; // Your NewsAPI key
-const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?country=us&pageSize=10&apiKey=${API_KEY}`;
+const API_KEY = 'aa74878ced5144a4a149a69ff0db10df'; 
+const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?country=us&pageSize=25&apiKey=${API_KEY}`;
 
 interface NewsItem {
   title: string;
@@ -20,13 +20,14 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
   const [accountId, setAccountId] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null> (null);
 
-  // Fetch current user
   const fetchCurrentUser = async () => {
     try {
       const currentUser = await getCurrentUser();
       if (currentUser && currentUser.accountId) {
         setAccountId(currentUser.accountId);
+        setUsername(currentUser.username);
       } else {
         console.error('No user found');
       }
@@ -39,7 +40,6 @@ const Home = () => {
     fetchCurrentUser();
   }, []);
 
-  // Fetch news from API
   const fetchNews = async () => {
     try {
       setLoading(true);
@@ -62,7 +62,6 @@ const Home = () => {
     fetchNews();
   }, []);
 
-  // Open news article in browser
   const openArticle = (url: string) => {
     if (!url || !url.startsWith('http')) {
       Alert.alert('Error', 'Invalid or missing article URL');
@@ -73,7 +72,7 @@ const Home = () => {
     );
   };
 
-  // Save article
+  // Zapisywanie artykułu
   const toggleSaveArticle = async (article: NewsItem) => {
     try {
       if (!accountId) {
@@ -108,12 +107,10 @@ const Home = () => {
     }
   };
 
-  // Filter news based on search query
   const filteredNews = news.filter((article) =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Render a single news item
   const renderNewsItem = ({ item }: { item: NewsItem }) => {
     const isSaved = savedArticles.has(item.url);
 
@@ -150,9 +147,9 @@ const Home = () => {
       <View style={styles.headerContainer}>
         <View>
           <Text style={styles.welcomeText}>Welcome Back</Text>
-          <Text style={styles.username}>{accountId || 'Guest'}</Text>
+          <Text style={styles.username}>{username || 'Guest'}</Text>
         </View>
-        <Feather name="camera" size={24} color="#FFF" />
+
       </View>
 
       <View style={styles.searchContainer}>

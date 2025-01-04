@@ -30,12 +30,12 @@ const SignIn = () => {
       setUser(result);
       setIsLoggedIn(true)
       
-      Alert.alert('Success', 'Account created successfully!');
+      Alert.alert('Success', 'Login completed!');
       router.replace('/home') 
     } catch (error) {
       Alert.alert('Error', error.message || 'An error occurred');
     } finally {
-      setSubmitting(false); // Zakończ ładowanie
+      setSubmitting(false); 
     }
   };
 
@@ -90,7 +90,7 @@ export default SignIn;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E1E2C', // Ciemne tło
+    backgroundColor: '#1E1E2C', 
     padding: 20,
   },
   scrollView: {
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#FFA001', // Przyciągający wzrok kolor
+    backgroundColor: '#FFA001',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',

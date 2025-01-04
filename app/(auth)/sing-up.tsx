@@ -9,7 +9,7 @@ import { useGlobalContext } from '../../contex/GlobalProvider';
 
 const SignUp = () => {
   const router = useRouter();
-  const { setUser, setIsLoggedIn } = useGlobalContext(); // Użycie kontekstu globalnego
+  const { setUser, setIsLoggedIn } = useGlobalContext();
   const [form, setForm] = useState({
     username: '',
     email: '',
@@ -36,7 +36,7 @@ const SignUp = () => {
     } catch (error) {
       Alert.alert('Error', error.message || 'An error occurred');
     } finally {
-      setSubmitting(false); // Zakończ ładowanie
+      setSubmitting(false); 
     }
   };
 

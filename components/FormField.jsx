@@ -53,26 +53,26 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: "#E4E4E4", // Lekko szary kolor dla tytułu
+    color: "#E4E4E4",
     marginBottom: 8,
     fontWeight: "500",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1E1E2C", // Ciemny kolor dla pola
+    backgroundColor: "#1E1E2C", 
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#333", // Kolor obramowania
-    paddingHorizontal: 16, // Wyrównanie wewnętrzne
+    borderColor: "#333",
+    paddingHorizontal: 16, 
     height: 56,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#FFFFFF", // Kolor tekstu
+    color: "#FFFFFF", 
   },
   iconContainer: {
-    paddingLeft: 12, // Odstęp ikony od pola tekstowego
+    paddingLeft: 12, 
   },
 });

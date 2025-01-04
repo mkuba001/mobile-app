@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOpacity, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
-import { getSavedNews, getCurrentUser, deleteSavedNews } from '../../service/appwrite'; // Import delete function
-
+import { getSavedNews, getCurrentUser, deleteSavedNews } from '../../service/appwrite'; 
 interface SavedNewsItem {
-  $id: string; // Unique ID from Appwrite
+  $id: string; // AppwriteID
   title: string;
   description: string;
   linkPhoto?: string;
@@ -16,24 +15,20 @@ interface SavedNewsItem {
 const Saved = () => {
   const [savedNews, setSavedNews] = useState<SavedNewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [refreshing, setRefreshing] = useState<boolean>(false); // State for pull-to-refresh
+  const [refreshing, setRefreshing] = useState<boolean>(false); 
 
-  // Fetch saved news from the database
   const fetchSavedNews = async () => {
     try {
       setLoading(true);
 
-      // Get the current user
       const currentUser = await getCurrentUser();
       if (!currentUser || !currentUser.accountId) {
         Alert.alert('Error', 'Unable to fetch current user.');
         return;
       }
 
-      // Fetch saved news for the current user
       const response = await getSavedNews(currentUser.accountId);
 
-      // Map the response to match SavedNewsItem type
       const mappedNews: SavedNewsItem[] = response.map((doc) => ({
         $id: doc.$id,
         title: doc.title || 'No Title',
@@ -56,11 +51,11 @@ const Saved = () => {
     fetchSavedNews();
   }, []);
 
-  // Handle pull-to-refresh
+
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      await fetchSavedNews(); // Re-fetch saved news
+      await fetchSavedNews(); 
     } catch (error) {
       console.error('Error refreshing saved news:', error);
     } finally {
@@ -68,7 +63,6 @@ const Saved = () => {
     }
   };
 
-  // Handle opening the saved article
   const openArticle = (link: string) => {
     if (!link || !link.startsWith('http')) {
       Alert.alert('Error', 'Invalid or missing article URL.');
@@ -77,7 +71,6 @@ const Saved = () => {
     Linking.openURL(link).catch((err) => console.error('Error opening URL:', err));
   };
 
-  // Handle deleting a saved article
   const handleDelete = async (newsId: string) => {
     try {
       Alert.alert(
@@ -89,8 +82,8 @@ const Saved = () => {
             text: 'Delete',
             style: 'destructive',
             onPress: async () => {
-              await deleteSavedNews(newsId); // Call backend function
-              setSavedNews((prev) => prev.filter((item) => item.$id !== newsId)); // Update local state
+              await deleteSavedNews(newsId); 
+              setSavedNews((prev) => prev.filter((item) => item.$id !== newsId)); 
               Alert.alert('Success', 'News item deleted successfully!');
             },
           },
@@ -102,7 +95,6 @@ const Saved = () => {
     }
   };
 
-  // Render a single saved news item
   const renderSavedNewsItem = ({ item }: { item: SavedNewsItem }) => (
     <View style={styles.newsItem}>
       <TouchableOpacity onPress={() => openArticle(item.link)} style={styles.newsContent}>
@@ -122,7 +114,7 @@ const Saved = () => {
           </Text>
         </View>
       </TouchableOpacity>
-      {/* Small delete button in the top-right corner */}
+      {}
       <TouchableOpacity onPress={() => handleDelete(item.$id)} style={styles.deleteButton}>
         <Feather name="trash" size={20} color="#FF3B30" />
       </TouchableOpacity>
@@ -143,8 +135,8 @@ const Saved = () => {
           keyExtractor={(item) => item.$id}
           contentContainerStyle={styles.newsList}
           showsVerticalScrollIndicator={false}
-          refreshing={refreshing} // Pull-to-refresh state
-          onRefresh={handleRefresh} // Pull-to-refresh handler
+          refreshing={refreshing} 
+          onRefresh={handleRefresh}
         />
       )}
     </SafeAreaView>
@@ -160,7 +152,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   header: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
@@ -182,20 +174,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#292938',
     borderRadius: 10,
     marginBottom: 15,
-    overflow: 'hidden',
-    flexDirection: 'row',
+    flexDirection: 'row', 
     alignItems: 'center',
     padding: 10,
   },
   newsImage: {
-    width: 80,
-    height: 80,
+    width: 60, 
+    height: 60, 
     borderRadius: 8,
     marginRight: 10,
   },
   placeholderImage: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     borderRadius: 8,
     marginRight: 10,
     backgroundColor: '#444',
@@ -204,27 +195,26 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: '#AAA',
-    fontSize: 12,
+    fontSize: 10, 
   },
   newsContent: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingRight: 40, 
   },
   newsTitle: {
-    fontSize: 16,
+    fontSize: 14, 
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 5,
   },
   newsDescription: {
-    fontSize: 14,
+    fontSize: 12, 
     color: '#CCCCCC',
   },
   deleteButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 5, 
+    right: 5,
     backgroundColor: 'transparent',
     padding: 5,
   },
