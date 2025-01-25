@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOpacity, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
-import { getSavedNews, getCurrentUser, deleteSavedNews } from '../../service/appwrite'; 
+import { getSavedNews, getCurrentUser, deleteSavedNews } from '../../service/appwrite'; // Import delete function
+
 interface SavedNewsItem {
-  $id: string; // AppwriteID
+  $id: string; // Unique ID from Appwrite
   title: string;
   description: string;
   linkPhoto?: string;
@@ -15,20 +16,24 @@ interface SavedNewsItem {
 const Saved = () => {
   const [savedNews, setSavedNews] = useState<SavedNewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [refreshing, setRefreshing] = useState<boolean>(false); 
+  const [refreshing, setRefreshing] = useState<boolean>(false); // State for pull-to-refresh
 
+  // Fetch saved news from the database
   const fetchSavedNews = async () => {
     try {
       setLoading(true);
 
+      // Get the current user
       const currentUser = await getCurrentUser();
       if (!currentUser || !currentUser.accountId) {
         Alert.alert('Error', 'Unable to fetch current user.');
         return;
       }
 
+      // Fetch saved news for the current user
       const response = await getSavedNews(currentUser.accountId);
 
+      // Map the response to match SavedNewsItem type
       const mappedNews: SavedNewsItem[] = response.map((doc) => ({
         $id: doc.$id,
         title: doc.title || 'No Title',
@@ -51,11 +56,11 @@ const Saved = () => {
     fetchSavedNews();
   }, []);
 
-
+  // Handle pull-to-refresh
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      await fetchSavedNews(); 
+      await fetchSavedNews(); // Re-fetch saved news
     } catch (error) {
       console.error('Error refreshing saved news:', error);
     } finally {
@@ -63,6 +68,7 @@ const Saved = () => {
     }
   };
 
+  // Handle opening the saved article
   const openArticle = (link: string) => {
     if (!link || !link.startsWith('http')) {
       Alert.alert('Error', 'Invalid or missing article URL.');
@@ -71,6 +77,7 @@ const Saved = () => {
     Linking.openURL(link).catch((err) => console.error('Error opening URL:', err));
   };
 
+  // Handle deleting a saved article
   const handleDelete = async (newsId: string) => {
     try {
       Alert.alert(
@@ -82,8 +89,8 @@ const Saved = () => {
             text: 'Delete',
             style: 'destructive',
             onPress: async () => {
-              await deleteSavedNews(newsId); 
-              setSavedNews((prev) => prev.filter((item) => item.$id !== newsId)); 
+              await deleteSavedNews(newsId); // Call backend function
+              setSavedNews((prev) => prev.filter((item) => item.$id !== newsId)); // Update local state
               Alert.alert('Success', 'News item deleted successfully!');
             },
           },
@@ -95,31 +102,32 @@ const Saved = () => {
     }
   };
 
-  const renderSavedNewsItem = ({ item }: { item: SavedNewsItem }) => (
-    <View style={styles.newsItem}>
-      <TouchableOpacity onPress={() => openArticle(item.link)} style={styles.newsContent}>
-        {item.linkPhoto ? (
-          <Image source={{ uri: item.linkPhoto }} style={styles.newsImage} />
-        ) : (
-          <View style={styles.placeholderImage}>
-            <Text style={styles.placeholderText}>No Image</Text>
-          </View>
-        )}
-        <View>
-          <Text style={styles.newsTitle} numberOfLines={2}>
-            {item.title}
-          </Text>
-          <Text style={styles.newsDescription} numberOfLines={3}>
-            {item.description}
-          </Text>
+  // Render a single saved news item
+const renderSavedNewsItem = ({ item }: { item: SavedNewsItem }) => (
+  <View style={styles.newsItem}>
+    <TouchableOpacity onPress={() => openArticle(item.link)} style={styles.newsContent}>
+      {item.linkPhoto ? (
+        <Image source={{ uri: item.linkPhoto }} style={styles.newsImage} />
+      ) : (
+        <View style={styles.placeholderImage}>
+          <Text style={styles.placeholderText}>No Image</Text>
         </View>
-      </TouchableOpacity>
-      {}
-      <TouchableOpacity onPress={() => handleDelete(item.$id)} style={styles.deleteButton}>
-        <Feather name="trash" size={20} color="#FF3B30" />
-      </TouchableOpacity>
-    </View>
-  );
+      )}
+      <View>
+        <Text style={styles.newsTitle} numberOfLines={2}>
+          {item.title}
+        </Text>
+        <Text style={styles.newsDescription} numberOfLines={3}>
+          {item.description}
+        </Text>
+      </View>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => handleDelete(item.$id)} style={styles.deleteButton}>
+      <Feather name="trash" size={20} color="#FF3B30" />
+    </TouchableOpacity>
+  </View>
+);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -135,8 +143,8 @@ const Saved = () => {
           keyExtractor={(item) => item.$id}
           contentContainerStyle={styles.newsList}
           showsVerticalScrollIndicator={false}
-          refreshing={refreshing} 
-          onRefresh={handleRefresh}
+          refreshing={refreshing} // Pull-to-refresh state
+          onRefresh={handleRefresh} // Pull-to-refresh handler
         />
       )}
     </SafeAreaView>
@@ -152,7 +160,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
@@ -174,19 +182,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#292938',
     borderRadius: 10,
     marginBottom: 15,
-    flexDirection: 'row', 
+    overflow: 'hidden',
+    flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
+    position: 'relative', // Dodane dla poprawnego pozycjonowania przycisku
   },
   newsImage: {
-    width: 60, 
-    height: 60, 
+    width: 80,
+    height: 80,
     borderRadius: 8,
     marginRight: 10,
   },
   placeholderImage: {
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
     borderRadius: 8,
     marginRight: 10,
     backgroundColor: '#444',
@@ -195,27 +205,27 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: '#AAA',
-    fontSize: 10, 
+    fontSize: 12,
   },
   newsContent: {
     flex: 1,
-    paddingRight: 40, 
   },
   newsTitle: {
-    fontSize: 14, 
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 5,
   },
   newsDescription: {
-    fontSize: 12, 
+    fontSize: 14,
     color: '#CCCCCC',
   },
   deleteButton: {
     position: 'absolute',
-    top: 5, 
-    right: 5,
+    top: 10,
+    right: 10, // Ustawiono, aby zawsze było w prawym rogu
     backgroundColor: 'transparent',
+    zIndex: 1, // Przycisk zawsze na wierzchu
     padding: 5,
   },
 });

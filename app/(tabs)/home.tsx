@@ -3,6 +3,8 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOp
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { saveNews, getCurrentUser } from '../../service/appwrite'; 
+import * as Location from 'expo-location';
+import * as FileSystem from 'expo-file-system'; // Import FileSystem
 
 const API_KEY = 'aa74878ced5144a4a149a69ff0db10df'; 
 const NEWS_API_URL = `https://newsapi.org/v2/top-headlines?country=us&pageSize=25&apiKey=${API_KEY}`;
@@ -21,6 +23,8 @@ const Home = () => {
   const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
   const [accountId, setAccountId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null> (null);
+  const [location, setLocation] = useState<string | null>('Fetching location...');
+  const [weather, setWeather] = useState<string | null>(null);
 
   const fetchCurrentUser = async () => {
     try {
@@ -72,7 +76,6 @@ const Home = () => {
     );
   };
 
-  // Zapisywanie artykułu
   const toggleSaveArticle = async (article: NewsItem) => {
     try {
       if (!accountId) {
@@ -142,6 +145,55 @@ const Home = () => {
     );
   };
 
+  const requestPermissions = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setLocation('Permission to access location denied');
+        return;
+      }
+
+      const { coords } = await Location.getCurrentPositionAsync({});
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.latitude},${coords.longitude}&key=AIzaSyDeHk_D-Czh18ygIQKcTjuAPTs9oyl7oDA`
+      );
+      const data = await response.json();
+
+      const country = data.results
+        ?.find((result: { types: string[] }) => result.types.includes('country'))
+        ?.formatted_address || 'Unknown';
+      setLocation(country);
+
+      // Fetch weather based on coordinates
+      await fetchWeather(coords.latitude, coords.longitude);
+    } catch (error) {
+      console.error('Error fetching location:', error);
+      setLocation('Error fetching location');
+    }
+  };
+
+  const fetchWeather = async (latitude: number, longitude: number) => {
+    try {
+      const response = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+      );
+      const data = await response.json();
+      if (data && data.current_weather) {
+        const { temperature } = data.current_weather;
+        setWeather(`${temperature}°C`);
+      } else {
+        setWeather('Unable to fetch weather');
+      }
+    } catch (error) {
+      console.error('Error fetching weather:', error);
+      setWeather('Error fetching weather');
+    }
+  };
+
+  useEffect(() => {
+    requestPermissions();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -150,6 +202,11 @@ const Home = () => {
           <Text style={styles.username}>{username || 'Guest'}</Text>
         </View>
 
+        {/* Location and Weather Info */}
+        <View style={styles.locationContainer}>
+          <Text style={styles.locationText}>{location}</Text>
+          <Text style={styles.weatherText}>{weather || 'Fetching weather...'}</Text>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -202,6 +259,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  locationContainer: {
+    alignItems: 'flex-end',
+  },
+  locationText: {
+    fontSize: 16,
+    color: '#FFA001',
+  },
+  weatherText: {
+    fontSize: 14,
+    color: '#FFFFFF',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -263,5 +331,18 @@ const styles = StyleSheet.create({
   newsDescription: {
     fontSize: 14,
     color: '#CCCCCC',
+  },
+  locationButton: {
+    backgroundColor: '#FFA001',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
+    marginTop: 10,
+  },
+  locationButtonText: {
+    color: '#1E1E2C',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
