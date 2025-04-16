@@ -1,13 +1,7 @@
 import { Account, Client, Databases, ID, Query, Storage, Avatars } from 'react-native-appwrite';
 
 export const config = {
-  endpoint: 'https://cloud.appwrite.io/v1',
-  platform: 'com.jsm.news',
-  projectId: '6759e9e800016a9493d3',
-  databaseId: '6759ed36000b1bd0a3f2',
-  userCollectionId: '6759ed6d0039d58d8deb',
-  saved_newsCollectionId: '6759edad001f114e73e9',
-  storageId: '6759f0b00012c6aad6f3'
+
 }
 
 const client = new Client();
